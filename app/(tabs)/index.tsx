@@ -1,98 +1,263 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import React, { useState, useRef, useEffect } from "react";
+import { View, Text, StyleSheet, Pressable, Animated, Dimensions } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { BlurView } from "expo-blur";
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+export default function CounterScreen() {
+  const [count, setCount] = useState(0);
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+  const countScaleAnim = useRef(new Animated.Value(1)).current;
 
-export default function HomeScreen() {
+  useEffect(() => {
+    // Animate counter value when it changes
+    Animated.sequence([
+      Animated.spring(countScaleAnim, {
+        toValue: 1.2,
+        useNativeDriver: true,
+        tension: 100,
+        friction: 3,
+      }),
+      Animated.spring(countScaleAnim, {
+        toValue: 1,
+        useNativeDriver: true,
+        tension: 100,
+        friction: 5,
+      }),
+    ]).start();
+  }, [count]);
+
+  const handlePressIn = () => {
+    Animated.spring(scaleAnim, {
+      toValue: 0.92,
+      useNativeDriver: true,
+      tension: 100,
+      friction: 3,
+    }).start();
+  };
+
+  const handlePressOut = () => {
+    Animated.spring(scaleAnim, {
+      toValue: 1,
+      useNativeDriver: true,
+      tension: 100,
+      friction: 5,
+    }).start();
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+    <LinearGradient
+      colors={["#667eea", "#764ba2", "#f093fb"]}
+      style={styles.container}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+    >
+      {/* Decorative circles */}
+      <View style={[styles.circle, styles.circle1]} />
+      <View style={[styles.circle, styles.circle2]} />
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+      <View style={styles.content}>
+        <Text style={styles.title}>✨ Counter</Text>
+        <Text style={styles.subtitle}>Simple & Beautiful</Text>
+
+        {/* Glassmorphism Card */}
+        <BlurView intensity={20} tint="light" style={styles.card}>
+          <View style={styles.cardInner}>
+            <Text style={styles.label}>Current Count</Text>
+            <Animated.Text
+              style={[
+                styles.count,
+                { transform: [{ scale: countScaleAnim }] }
+              ]}
+            >
+              {count}
+            </Animated.Text>
+          </View>
+        </BlurView>
+
+        {/* Control Buttons */}
+        <View style={styles.controls}>
+          <Pressable
+            onPress={() => setCount(count - 1)}
+            onPressIn={handlePressIn}
+            onPressOut={handlePressOut}
+          >
+            <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+              <LinearGradient
+                colors={["#ff758c", "#ff7eb3"]}
+                style={styles.btn}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+              >
+                <Text style={styles.btnText}>−</Text>
+              </LinearGradient>
+            </Animated.View>
+          </Pressable>
+
+          <Pressable
+            onPress={() => setCount(count + 1)}
+            onPressIn={handlePressIn}
+            onPressOut={handlePressOut}
+          >
+            <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+              <LinearGradient
+                colors={["#4facfe", "#00f2fe"]}
+                style={styles.btn}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+              >
+                <Text style={styles.btnText}>+</Text>
+              </LinearGradient>
+            </Animated.View>
+          </Pressable>
+        </View>
+
+        {/* Reset Button */}
+        <Pressable onPress={() => setCount(0)} style={styles.resetContainer}>
+          <LinearGradient
+            colors={["#fa709a", "#fee140"]}
+            style={styles.resetBtn}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+          >
+            <Text style={styles.resetText}>↻ Reset Counter</Text>
+          </LinearGradient>
+        </Pressable>
+      </View>
+    </LinearGradient>
   );
 }
 
+const { width } = Dimensions.get("window");
+
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  container: {
+    flex: 1,
+    position: "relative",
   },
-  stepContainer: {
-    gap: 8,
+  circle: {
+    position: "absolute",
+    borderRadius: 999,
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+  },
+  circle1: {
+    width: 300,
+    height: 300,
+    top: -100,
+    right: -100,
+  },
+  circle2: {
+    width: 200,
+    height: 200,
+    bottom: 50,
+    left: -50,
+  },
+  content: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  title: {
+    fontSize: 48,
+    fontWeight: "900",
+    color: "#ffffff",
     marginBottom: 8,
+    textShadowColor: "rgba(0, 0, 0, 0.3)",
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 10,
+    letterSpacing: 1,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  subtitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#ffffff",
+    marginBottom: 50,
+    opacity: 0.9,
+    letterSpacing: 2,
+    textTransform: "uppercase",
+  },
+  card: {
+    borderRadius: 30,
+    overflow: "hidden",
+    borderWidth: 2,
+    borderColor: "rgba(255, 255, 255, 0.3)",
+    marginBottom: 40,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+  cardInner: {
+    padding: 40,
+    backgroundColor: "rgba(255, 255, 255, 0.15)",
+    alignItems: "center",
+    minWidth: width * 0.7,
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#ffffff",
+    marginBottom: 10,
+    opacity: 0.9,
+    letterSpacing: 1,
+    textTransform: "uppercase",
+  },
+  count: {
+    fontSize: 96,
+    fontWeight: "900",
+    color: "#ffffff",
+    textShadowColor: "rgba(0, 0, 0, 0.3)",
+    textShadowOffset: { width: 0, height: 4 },
+    textShadowRadius: 10,
+  },
+  controls: {
+    flexDirection: "row",
+    gap: 30,
+    marginBottom: 40,
+  },
+  btn: {
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 15,
+    elevation: 8,
+  },
+  btnText: {
+    fontSize: 48,
+    fontWeight: "900",
+    color: "#ffffff",
+    textShadowColor: "rgba(0, 0, 0, 0.2)",
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
+  },
+  resetContainer: {
+    width: "80%",
+    maxWidth: 300,
+  },
+  resetBtn: {
+    paddingVertical: 18,
+    paddingHorizontal: 40,
+    borderRadius: 25,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 6,
+  },
+  resetText: {
+    color: "#ffffff",
+    fontSize: 18,
+    fontWeight: "700",
+    letterSpacing: 1,
+    textShadowColor: "rgba(0, 0, 0, 0.2)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
   },
 });
